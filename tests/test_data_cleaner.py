@@ -74,3 +74,14 @@ def test_save_clean_data_creates_file(tmp_path):
     saved = pd.read_csv(out_path)
     assert "value" in saved.columns
     assert abs(saved["value"].iloc[0] - 13.7) < 0.001
+
+def test_calculate_aqi_pm25_within_range():
+    from src.data_cleaner import calculate_aqi
+    aqi = calculate_aqi("pm25", 25.0)  # should fall in 51–100 range
+    assert 51 <= aqi <= 100
+
+
+def test_calculate_aqi_no2_within_range():
+    from src.data_cleaner import calculate_aqi
+    aqi = calculate_aqi("no2", 120.0)
+    assert 101 <= aqi <= 150
