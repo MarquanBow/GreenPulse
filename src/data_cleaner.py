@@ -52,3 +52,33 @@ def clean_air_quality_data(raw_file: str) -> pd.DataFrame:
 
     print(f"Cleaned {len(df)} records -> {len(daily_avg)} daily averages")
     return daily_avg
+
+def save_clean_data(df: pd.DataFrame, city: str) -> str:
+    """
+    Save the cleaned air quality data to data/processed/ with UTC timestamp.
+    """
+    if df.empty:
+        print("No cleaned data to save.")
+        return ""
+
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    output_file = os.path.join(PROCESSED_DIR, f"{city.lower()}_cleaned_{timestamp}.csv")
+    df.to_csv(output_file, index=False)
+    print(f"Clean data saved to {output_file}")
+    return output_file
+
+if __name__ == "__main__":
+    # Example: Clean latest Charlotte file
+    city = "Charlotte"
+    raw_files = sorted(
+        [f for f in os.listdir(RAW_DIR) if f.startswith(city.lower())],
+        reverse=True
+    )
+
+    if not raw_files:
+        print("No raw files found. Run data_fetcher.py first.")
+    else:
+        latest_file = os.path.join(RAW_DIR, raw_files[0])
+        print(f"Cleaning {latest_file}...")
+        df_clean = clean_air_quality_data(latest_file)
+        save_clean_data(df_clean, city)
